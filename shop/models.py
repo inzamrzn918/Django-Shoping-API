@@ -1,4 +1,5 @@
 import datetime
+import uuid
 
 from django.contrib.auth.models import User
 from django.db import models
@@ -42,9 +43,10 @@ class Customers(models.Model):
 
 
 class Orders(models.Model):
-    order_id = models.AutoField(primary_key=True)
+    order_id = models.CharField(primary_key=True, default=uuid.uuid4(), max_length=256)
     products = models.ManyToManyField(Products)
     order_time = models.DateTimeField(default=datetime.datetime.now())
+    customer = models.ForeignKey(Customers, on_delete=models.SET_NULL, null=True)
 
     def __str__(self):
         return str(self.order_id)+" "+str(self.order_time)

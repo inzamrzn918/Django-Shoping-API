@@ -5,6 +5,8 @@ from .views import *
 urlpatterns = [
     path('products', get_products),
     path('products/<str:p_id>', get_single_product),
+    path('products/tag/<str:tag_title>', get_products),
+    path('products/cat/<str:cat_title>', get_products),
     path('product/new', set_products),
     path('product/update/<str:p_id>', update_products),
 
@@ -19,6 +21,11 @@ urlpatterns = [
     path('tag/update/<str:cat_id>', update_tag),
 
     path('orders/', get_orders),
+    path('orders/<str:customer_id>', get_single_orders),
+    path('orders/<str:order_id>', get_single_orders),
+    # path('orders/<str:customer_id>', get_single_orders),
+    # path('order/new', set_order),
+    # path('order/update/<str:order_id>', update_orders),
 
 
 

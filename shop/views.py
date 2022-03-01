@@ -1,7 +1,5 @@
-from django.shortcuts import render
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from .models import *
 from .serializer import *
 
 
@@ -80,10 +78,22 @@ def update_tag(request, tag_id):
 
 # PRODUCT
 @api_view(['GET'])
-def get_products(request):
-    products = Products.objects.all()
-    ps = ProductsSerializers(products, many=True)
-    return Response({"status": 200, "data": ps.data})
+def get_products(request, tag_title=None, cat_title=None):
+    prd = None
+
+    # if cat_title is not None:
+    #     cat = Categories.objects.get(cat_title=cat_title)
+    #     print(cat)
+    # if tag_title is not None:
+    #     tag = Tags.objects.get(tag_title=tag_title)
+    #     prd = tag.orders_set.all()
+    #
+    # if prd is None:
+    #     prd = Products.objects.select_related().all()
+    #     ps = ProductsSerializers(prd, many=True)
+    #     return Response({"status": 200, "data": ps.data})
+    # else:
+    #     return Response({"status": 404, "data": "Not Found"})
 
 
 @api_view(['GET'])
@@ -95,7 +105,6 @@ def get_single_product(request, p_id):
 
 @api_view(['POST'])
 def set_products(request):
-    # products = Products.object.all()
     ps = ProductsSerializers(data=request.data)
     if not ps.is_valid():
         return Response({"status": 401, "massage": ps.errors})
@@ -106,7 +115,7 @@ def set_products(request):
 @api_view(['POST'])
 def update_products(request, p_id):
     products = Products.objects.get(p_id=p_id)
-    ps = ProductsSerializers(instance=products.data, data=request.data)
+    ps = ProductsSerializers(instance=products, data=request.data)
     if not ps.is_valid():
         return Response({"status": 401, "massage": ps.errors})
     ps.save()
@@ -116,5 +125,32 @@ def update_products(request, p_id):
 @api_view(['GET'])
 def get_orders(request):
     orders = Orders.objects.all()
+    ors = OrdersSerializers(orders, many=True)
+    return Response({"status": 200, "data": ors.data})
+
+
+@api_view(['GET'])
+def get_single_orders(request, customer_id=None, order_id=None):
+    if customer_id is None and order_id is not None:
+        orders = Orders.objects.filter(order_id=order_id)
+    if customer_id is not None and order_id is None:
+        orders = Orders.objects.filter(customers_customer_id=customer_id)
+    if customer_id is not None and order_id is not None:
+        orders = Orders.objects.filter(customers_customer_id=customer_id, orders_order_id=order_id)
+    serializers = OrdersSerializers(orders, many=True)
+    return Response({"status": 200, "data": serializers.data})
+
+
+@api_view(['POST'])
+def get_orders(request):
+    ors = OrdersSerializers(data=request.data)
+    if not ors.is_valid():
+        return Response({"status": 401, "massage": ors.errors})
+    return Response({"status": 201, "data": ors.data})
+
+
+@api_view(['GET'])
+def get_orders(request, params):
+    orders = Orders.objects.select_related()
     ors = OrdersSerializers(orders, many=True)
     return Response({"status": 200, "data": ors.data})
