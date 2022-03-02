@@ -1,4 +1,5 @@
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from .serializer import *
 from rest_framework.authtoken.views import ObtainAuthToken
@@ -11,6 +12,7 @@ def home(request):
 
 
 # GET CATEGORY
+
 @api_view(['GET'])
 def get_category(request):
     category = Categories.objects.all()
@@ -26,6 +28,7 @@ def get_category_one(request, cat_id):
 
 
 @api_view(['POST'])
+@permission_classes((IsAuthenticated, ))
 def set_category(request):
     cs = CategoriesSerializers(data=request.data)
     if not cs.is_valid():
