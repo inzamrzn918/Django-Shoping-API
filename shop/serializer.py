@@ -30,6 +30,8 @@ class ProductsSerializers(serializers.ModelSerializer):
 
 
 class CustomerSerializers(serializers.ModelSerializer):
+    # user = UsersSerializer(read_only=True, many=False)
+
     class Meta:
         model = Customers
         fields = '__all__'
@@ -37,7 +39,7 @@ class CustomerSerializers(serializers.ModelSerializer):
 
 class OrdersSerializers(serializers.ModelSerializer):
     products = ProductsSerializers(read_only=True, many=True)
-    customer = CustomerSerializers(read_only=True, many=True)
+    customer = CustomerSerializers(read_only=True, many=False)
 
     class Meta:
         model = Orders
