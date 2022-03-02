@@ -1,6 +1,8 @@
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from .serializer import *
+from rest_framework.authtoken.views import ObtainAuthToken
+from rest_framework.authtoken.models import Token
 
 
 @api_view(['GET'])
@@ -155,12 +157,26 @@ def register(request):
         user.save()
         customer['customer_name'] = request.data['customer_name']
         customer['user_id'] = (User.objects.last()).id
-        print(customer)
         custSer = CustomerSerializers(data=customer)
+        users = User.objects.get(username=username)
+        token, created = Token.objects.get_or_create(user=users)
+        print(token)
+        print(created)
         if custSer.is_valid():
             custSer.save()
-            return Response({"status": 201, "data": custSer.data})
+            return Response({"status": 201, "data": custSer.data, "token": str(token)})
         else:
             return Response({"status": 201, "data": custSer.errors})
     else:
         return Response({"status": 401, "data": user.errors})
+
+
+@api_view(['POST'])
+def login(request):
+    user = User.objects.get(username=request.data['username'])
+    userSerializer = UsersSerializer(user, many=False)
+    if userSerializer is not None:
+        token, _ = Token.objects.get_or_create(user=user)
+        return Response({"status": 201, "data": userSerializer.data, "token": str(token)})
+    else:
+        return Response({"status": 201, "data": "Invalid Username & Password Combination"})

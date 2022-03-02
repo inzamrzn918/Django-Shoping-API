@@ -28,5 +28,6 @@ urlpatterns = [
     #     TODO : Customer routes
     # path('customers/)
 
-    path('register', register)
+    path('register', register),
+    path('login', login),
 ]
