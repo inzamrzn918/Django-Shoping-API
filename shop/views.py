@@ -1,14 +1,48 @@
+from django.conf import settings
+from django.shortcuts import render
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from .serializer import *
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.models import Token
+from django.core.mail import send_mail
+from django.core.mail import EmailMultiAlternatives
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
+
+
+@api_view(['GET'])
+def req_email(request):
+    data = {
+        "name": request.data['name'],
+        "email": request.data['email'],
+        "time": datetime.datetime.now()
+    }
+    html = render_to_string("email_templates.html", data)
+    text_string = strip_tags(html)
+    email = EmailMultiAlternatives(
+        "Test Email",
+        text_string,
+        settings.EMAIL_HOST_USER,
+        [data['email']]
+    )
+    email.attach_alternative(html, "text/html")
+    email.send()
+    return Response({"msg": "Email sent to " + str(data['email'])})
+
+
+@api_view(['GET'])
+def api_home(request):
+    data = {
+        "base_url": "http://127.0.0.1:8000/api"
+    }
+    return render(request, "api_home.html", context=data)
 
 
 @api_view(['GET'])
 def home(request):
-    return Response({"PAGE": "API HOME"})
+    return render(request, "home.html", )
 
 
 # GET CATEGORY
@@ -28,7 +62,7 @@ def get_category_one(request, cat_id):
 
 
 @api_view(['POST'])
-@permission_classes((IsAuthenticated, ))
+@permission_classes((IsAuthenticated,))
 def set_category(request):
     cs = CategoriesSerializers(data=request.data)
     if not cs.is_valid():
@@ -38,6 +72,7 @@ def set_category(request):
 
 
 @api_view(['POST'])
+@permission_classes((IsAuthenticated,))
 def update_category(request, cat_id):
     cat = Categories.objects.get(cat_id=cat_id)
     serializer = CategoriesSerializers(instance=cat, data=request.data)
@@ -63,6 +98,7 @@ def get_tag_one(request, tag_id):
 
 
 @api_view(['POST'])
+@permission_classes((IsAuthenticated,))
 def set_tag(request):
     ts = TagsSerializers(data=request.data)
     if not ts.is_valid():
@@ -72,6 +108,7 @@ def set_tag(request):
 
 
 @api_view(['POST'])
+@permission_classes((IsAuthenticated,))
 def update_tag(request, tag_id):
     tag = Tags.objects.get(tag_id=tag_id)
     serializer = TagsSerializers(instance=tag, data=request.data)
@@ -105,6 +142,7 @@ def get_single_product(request, p_id):
 
 
 @api_view(['POST'])
+@permission_classes((IsAuthenticated,))
 def set_products(request):
     ps = ProductsSerializers(data=request.data)
     if not ps.is_valid():
@@ -114,6 +152,7 @@ def set_products(request):
 
 
 @api_view(['POST'])
+@permission_classes((IsAuthenticated,))
 def update_products(request, p_id):
     products = Products.objects.get(p_id=p_id)
     ps = ProductsSerializers(instance=products, data=request.data)
@@ -143,6 +182,7 @@ def get_single_orders(request, customer_id=None, order_id=None):
 
 
 @api_view(['POST'])
+@permission_classes((IsAuthenticated,))
 def set_orders(request):
     ors = OrdersSerializers(data=request.data)
     if not ors.is_valid():

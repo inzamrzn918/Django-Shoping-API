@@ -3,6 +3,7 @@ from django.urls import path
 from .views import *
 
 urlpatterns = [
+    path('', api_home),
     path('products', get_products),
     path('products/<str:p_id>', get_single_product),
     path('products/tag/<str:tag_title>', get_products),
@@ -30,4 +31,6 @@ urlpatterns = [
 
     path('register', register),
     path('login', login),
+
+    path("email", req_email)
 ]
